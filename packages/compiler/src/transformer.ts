@@ -72,6 +72,9 @@ export function createStackTransformerFactory(
   return (context: ts.TransformationContext) => {
     const factory = context.factory
 
+    // Map of local variable names → their stack layouts (within current scope)
+    const scopeStackLocals = new Map<string, StructLayout>()
+
     return (sourceFile: ts.SourceFile): ts.SourceFile => {
       // Phase 1: Discover all functions with stack value params/returns
       discoverTransformedFunctions(sourceFile)
@@ -188,9 +191,6 @@ export function createStackTransformerFactory(
         return r
       }, context)
     }
-
-    // Map of local variable names → their stack layouts (within current scope)
-    const scopeStackLocals = new Map<string, StructLayout>()
 
     function tryTransformVariableStatement(
       node: ts.VariableStatement,

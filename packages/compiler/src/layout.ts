@@ -91,6 +91,16 @@ export class LayoutEngine {
     return this._buildLayout(inner, typeName)
   }
 
+  private _isBrandProperty(prop: ts.Symbol): boolean {
+    // __stack_brand is a unique symbol, so TypeScript stores it with an
+    // escaped name like "__@___stack_brand@12", not the plain string.
+    return prop.name.includes('__stack_brand')
+  }
+
+  private _hasBrandProperty(type: ts.Type): boolean {
+    return type.getProperties().some(p => this._isBrandProperty(p))
+  }
+
   private _resolveStackInner(type: ts.Type): ts.Type | null {
     const ts = this._ts
 
@@ -99,11 +109,10 @@ export class LayoutEngine {
     if (type.isIntersection()) {
       // Stack<T> = T & { readonly [__stack_brand]: T }
       // Check for __stack_brand in the intersection members
-      const hasBrand = type.getProperty('__stack_brand')
-      if (hasBrand) {
+      if (this._hasBrandProperty(type)) {
         // The first type in the intersection should be T
         for (const member of type.types) {
-          if (!member.getProperty('__stack_brand')) {
+          if (!this._hasBrandProperty(member)) {
             return member
           }
         }
@@ -120,9 +129,9 @@ export class LayoutEngine {
     }
 
     // Check if the type itself has __stack_brand (resolved alias)
-    if (type.getProperty('__stack_brand')) {
+    if (this._hasBrandProperty(type)) {
       // Get properties excluding __stack_brand
-      const props = type.getProperties().filter(p => p.name !== '__stack_brand')
+      const props = type.getProperties().filter(p => !this._isBrandProperty(p))
       if (props.length > 0) {
         // The type itself is the layout carrier
         return type
@@ -139,8 +148,8 @@ export class LayoutEngine {
     const fields: LayoutField[] = []
     for (let i = 0; i < properties.length; i++) {
       const prop = properties[i]
-      // Skip the brand property
-      if (prop.name === '__stack_brand') continue
+      // Skip the brand property (unique symbol: escaped as __@___stack_brand@<id>)
+      if (this._isBrandProperty(prop)) continue
       fields.push({ name: prop.name, index: fields.length })
     }
 
