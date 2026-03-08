@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "declaration": false,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@stackfold/types": ["../packages/types/src/index.ts"],
+      "@stackfold/compiler": ["../packages/compiler/src/index.ts"],
+      "@stackfold/runtime": ["../packages/runtime/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "build.ts", "tests/**/*.ts"]
+}
