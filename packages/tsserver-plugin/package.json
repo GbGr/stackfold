@@ -1,0 +1,20 @@
+{
+  "name": "@stackfold/tsserver-plugin",
+  "version": "0.1.0",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@stackfold/compiler": "workspace:*"
+  },
+  "files": ["dist"]
+}
